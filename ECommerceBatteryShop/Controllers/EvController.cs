@@ -29,6 +29,15 @@ namespace ECommerceBatteryShop.Controllers
             _pricing = pricing;
         }
 
+        // Target of UseExceptionHandler in production; must exist or the handler itself 404s.
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            Response.StatusCode = StatusCodes.Status500InternalServerError;
+            ViewData["Title"] = "Bir hata oluştu";
+            return View();
+        }
+
         public async Task<IActionResult> Index(CancellationToken ct)
         {
             const int perSection = 16;

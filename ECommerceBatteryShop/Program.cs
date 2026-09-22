@@ -120,9 +120,9 @@ builder.Services.AddRateLimiter(options =>
             context.HttpContext.Response.Headers.RetryAfter =
                 retryAfter.TotalSeconds.ToString(CultureInfo.InvariantCulture);
         }
-
-        await context.HttpContext.Response.WriteAsync(
-            "Çok fazla istek gönderdiniz. Lütfen biraz bekleyin.", cancellationToken);
+        await context.HttpContext.Response.WriteAsJsonAsync(
+            new { success = false, message = "Çok fazla istek gönderdiniz. Lütfen biraz bekleyin." },
+            cancellationToken);
     };
 });
 
@@ -162,10 +162,6 @@ builder.Services.AddAuthentication(o =>
     {
         o.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
         o.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-        Console.WriteLine($"Google ClientId: {o.ClientId}");
-        Console.WriteLine($"Google ClientSecret: {o.ClientSecret}");
-        Console.WriteLine(
-            $"Connection String: {Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")}");
         o.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         o.SaveTokens = true;
         o.Scope.Add("email");
@@ -259,9 +255,37 @@ app.UseForwardedHeaders(forwardedHeadersOptions);
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Ev/Error");
     app.UseHsts();
 }
+
+// fetch() calls (checkout, cart...) can't parse the HTML error page, so answer them with JSON
+// carrying a trace id that can be matched against the logs. Page requests still fall through
+// to /Home/Error above.
+app.Use(async (ctx, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex) when (!ctx.Response.HasStarted &&
+                               (ctx.Request.Headers.ContainsKey("RequestVerificationToken") ||
+                                ctx.Request.Headers.Accept.ToString().Contains("application/json")))
+    {
+        var traceId = ctx.TraceIdentifier;
+        ctx.RequestServices.GetRequiredService<ILogger<Program>>().LogError(ex,
+            "Unhandled exception on {Method} {Path}. TraceId={TraceId}",
+            ctx.Request.Method, ctx.Request.Path, traceId);
+
+        ctx.Response.Clear();
+        ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await ctx.Response.WriteAsJsonAsync(new
+        {
+            success = false,
+            message = $"Sunucu hatası oluştu. Lütfen tekrar deneyin. (Hata kodu: {traceId})"
+        });
+    }
+});
 
 // Ensure schema exists (needed after volume reset or first deploy)
 using (var scope = app.Services.CreateScope())
@@ -280,6 +304,8 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+// One line per request (status + duration); 5xx are logged as Error so they reach the file sink too.
+app.UseSerilogRequestLogging();
 app.UseRouting();
 app.UseRateLimiter();
 

@@ -24,6 +24,7 @@ services:
       - .env
     volumes:
       - ./my-images:/app/wwwroot/img
+      - ./logs:/app/logs
 
 volumes:
   pgdata:

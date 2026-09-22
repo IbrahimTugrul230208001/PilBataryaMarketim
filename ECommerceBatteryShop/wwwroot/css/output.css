@@ -729,6 +729,9 @@
   .min-h-\[2\.75rem\] {
     min-height: 2.75rem;
   }
+  .min-h-\[60vh\] {
+    min-height: 60vh;
+  }
   .min-h-full {
     min-height: 100%;
   }
@@ -1673,6 +1676,9 @@
   }
   .py-16 {
     padding-block: calc(var(--spacing) * 16);
+  }
+  .py-24 {
+    padding-block: calc(var(--spacing) * 24);
   }
   .py-30 {
     padding-block: calc(var(--spacing) * 30);

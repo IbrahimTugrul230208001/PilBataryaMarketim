@@ -373,6 +373,8 @@
         { id:'yurtici',  name:'Yurtiçi Kargo', price:199.61 }
      ],
         selectedShippingId: 'hepsijet',
+        // payment method lives here (not in payUi) so the order summary aside can read it too
+        method: 'card',
     
         // lifecycle
         init(){
@@ -420,7 +422,6 @@
     function payUi(isAuth){
       return {
         isAuth: Boolean(isAuth),
-        method:'card',
         saved:[],
         selectedId:null,
         newCard:{name:'', number:'', exp:'', cvc:'', save:true, threeD:false},
@@ -527,7 +528,7 @@
               data = await response.json();
             } catch {}
             if(!response.ok || !data || !data.success){
-              const message = data?.message || 'Ödeme sırasında bir sorun oluştu. Lütfen tekrar deneyin.';
+              const message = data?.message || `Ödeme sırasında bir sorun oluştu. Lütfen tekrar deneyin. (HTTP ${response.status})`;
               this.notice = { success:false, message };
               return;
             }
