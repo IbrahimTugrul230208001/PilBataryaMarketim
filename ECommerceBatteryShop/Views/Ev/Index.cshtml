@@ -294,8 +294,8 @@
 </section>
 
 
-@foreach (var s in Model)
-{
+@foreach (ProductSectionViewModel s in Model)
+{ 
     if (s?.Products == null || !s.Products.Any()) { continue; }
 
     <section class="space-y-6 my-12">

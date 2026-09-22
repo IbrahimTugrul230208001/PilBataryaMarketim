@@ -1242,9 +1242,6 @@
   .border-emerald-200 {
     border-color: var(--color-emerald-200);
   }
-  .border-emerald-300 {
-    border-color: var(--color-emerald-300);
-  }
   .border-gray-100 {
     border-color: var(--color-gray-100);
   }
@@ -1295,9 +1292,6 @@
   }
   .border-slate-700 {
     border-color: var(--color-slate-700);
-  }
-  .border-slate-900 {
-    border-color: var(--color-slate-900);
   }
   .border-transparent {
     border-color: transparent;
@@ -1377,9 +1371,6 @@
   .bg-emerald-400 {
     background-color: var(--color-emerald-400);
   }
-  .bg-emerald-500 {
-    background-color: var(--color-emerald-500);
-  }
   .bg-emerald-600 {
     background-color: var(--color-emerald-600);
   }
@@ -1391,9 +1382,6 @@
   }
   .bg-gray-300 {
     background-color: var(--color-gray-300);
-  }
-  .bg-gray-400 {
-    background-color: var(--color-gray-400);
   }
   .bg-gray-800 {
     background-color: var(--color-gray-800);
@@ -1434,12 +1422,6 @@
   .bg-rose-50 {
     background-color: var(--color-rose-50);
   }
-  .bg-sky-50 {
-    background-color: var(--color-sky-50);
-  }
-  .bg-sky-500 {
-    background-color: var(--color-sky-500);
-  }
   .bg-slate-50 {
     background-color: var(--color-slate-50);
   }
@@ -1463,12 +1445,6 @@
   }
   .bg-slate-100 {
     background-color: var(--color-slate-100);
-  }
-  .bg-slate-100\/70 {
-    background-color: color-mix(in srgb, oklch(96.8% 0.007 247.896) 70%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--color-slate-100) 70%, transparent);
-    }
   }
   .bg-slate-200 {
     background-color: var(--color-slate-200);
@@ -1974,12 +1950,6 @@
   .text-rose-600 {
     color: var(--color-rose-600);
   }
-  .text-sky-700 {
-    color: var(--color-sky-700);
-  }
-  .text-slate-100 {
-    color: var(--color-slate-100);
-  }
   .text-slate-300 {
     color: var(--color-slate-300);
   }
@@ -2266,10 +2236,6 @@
     transition-property: transform, translate, scale, rotate;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
-  .duration-100 {
-    --tw-duration: 100ms;
-    transition-duration: 100ms;
   }
   .duration-150 {
     --tw-duration: 150ms;
@@ -2821,13 +2787,6 @@
       }
     }
   }
-  .hover\:opacity-70 {
-    &:hover {
-      @media (hover: hover) {
-        opacity: 70%;
-      }
-    }
-  }
   .hover\:opacity-80 {
     &:hover {
       @media (hover: hover) {
@@ -3117,11 +3076,6 @@
   .sm\:grid-cols-2 {
     @media (width >= 40rem) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .sm\:grid-cols-3 {
-    @media (width >= 40rem) {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
   .sm\:flex-row {
