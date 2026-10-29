@@ -1,0 +1,42 @@
+name: Deploy to Droplet
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch: # allows a manual "Run workflow" button in the Actions tab
+
+# Two quick pushes must not deploy at the same time; the later one waits for the first.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Load the password-less deploy key (private half of the deploy user's authorized_keys entry)
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      # 2. Trust the droplet's host key
+      - name: Add Deploy Host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      # 3. Pull the new code on the droplet and rebuild. --build is required: without it compose reuses
+      #    the existing image and keeps running the old code. set -e stops at the first failing command.
+      - name: Deploy
+        run: |
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
+            set -e
+            cd ~/apps/ECommerceBatteryShop
+            git fetch origin master
+            git reset --hard origin/master
+            docker compose up -d --build
+            docker image prune -f
+          '
+
