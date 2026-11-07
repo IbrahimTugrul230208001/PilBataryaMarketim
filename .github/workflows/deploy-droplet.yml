@@ -39,3 +39,7 @@ jobs:
             docker compose up -d --build
             docker image prune -f
           '
+<<<<<<< HEAD
+=======
+
+>>>>>>> a3872ec31a50f4ebbd04203c99ba97562aa864de
