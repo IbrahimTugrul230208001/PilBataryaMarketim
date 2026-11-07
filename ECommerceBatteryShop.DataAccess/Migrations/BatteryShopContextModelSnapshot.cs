@@ -501,6 +501,44 @@ namespace ECommerceBatteryShop.DataAccess.Migrations
                     b.ToTable("ProductDiscounts");
                 });
 
+            modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.ProductSupplierLink", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("LastQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SupplierId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SupplierSku")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "SupplierId")
+                        .IsUnique();
+
+                    b.HasIndex("SupplierId", "SupplierSku")
+                        .IsUnique();
+
+                    b.ToTable("ProductSupplierLinks");
+                });
+
             modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.SavedCard", b =>
                 {
                     b.Property<int>("Id")
@@ -571,6 +609,94 @@ namespace ECommerceBatteryShop.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("Shipments");
+                });
+
+            modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.StockSyncRun", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text");
+
+                    b.Property<int>("FeedItemCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("FinishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MatchedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MissingCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Succeeded")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("SupplierId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplierId", "StartedAt");
+
+                    b.ToTable("StockSyncRuns");
+                });
+
+            modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.Supplier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FeedFormat")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MinExpectedItems")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("StaleAfterHours")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Suppliers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Code = "pilmagazasi",
+                            FeedFormat = "akakce-xml",
+                            IsEnabled = true,
+                            MinExpectedItems = 300,
+                            Name = "Pil Mağazası",
+                            StaleAfterHours = 48
+                        });
                 });
 
             modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.User", b =>
@@ -764,6 +890,25 @@ namespace ECommerceBatteryShop.DataAccess.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.ProductSupplierLink", b =>
+                {
+                    b.HasOne("ECommerceBatteryShop.DataAccess.Entities.Product", "Product")
+                        .WithMany("SupplierLinks")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ECommerceBatteryShop.DataAccess.Entities.Supplier", "Supplier")
+                        .WithMany("ProductLinks")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Supplier");
+                });
+
             modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.SavedCard", b =>
                 {
                     b.HasOne("ECommerceBatteryShop.DataAccess.Entities.User", "User")
@@ -784,6 +929,17 @@ namespace ECommerceBatteryShop.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.StockSyncRun", b =>
+                {
+                    b.HasOne("ECommerceBatteryShop.DataAccess.Entities.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.Cart", b =>
@@ -817,6 +973,13 @@ namespace ECommerceBatteryShop.DataAccess.Migrations
                     b.Navigation("Inventory");
 
                     b.Navigation("ProductCategories");
+
+                    b.Navigation("SupplierLinks");
+                });
+
+            modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.Supplier", b =>
+                {
+                    b.Navigation("ProductLinks");
                 });
 
             modelBuilder.Entity("ECommerceBatteryShop.DataAccess.Entities.User", b =>

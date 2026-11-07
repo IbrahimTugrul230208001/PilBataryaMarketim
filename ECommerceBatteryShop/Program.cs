@@ -3,6 +3,7 @@ using ECommerceBatteryShop.DataAccess.Abstract;
 using ECommerceBatteryShop.DataAccess.Concrete;
 using ECommerceBatteryShop.Options;
 using ECommerceBatteryShop.Services;
+using ECommerceBatteryShop.Services.StockSync;
 using ECommerceBatteryShop.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
@@ -20,10 +21,6 @@ using Serilog.Events;
 
 DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
-
-// Debug: Print Google credentials
-Console.WriteLine($"DEBUG - Google ClientId: {builder.Configuration["Authentication:Google:ClientId"]}");
-Console.WriteLine($"DEBUG - Google ClientSecret: {builder.Configuration["Authentication:Google:ClientSecret"]}");
 
 // Configure Serilog to log only Error+ to a dedicated file
 var logsDir = Path.Combine(builder.Environment.ContentRootPath, "logs");
@@ -58,6 +55,7 @@ builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IFavoritesRepository, FavoritesRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+builder.Services.AddScoped<IStockSyncRepository, StockSyncRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IFavoritesService, FavoritesService>();
@@ -147,6 +145,13 @@ builder.Services.AddHttpClient<ICurrencyService, CurrencyService>();
 
 // Hosted service
 builder.Services.AddHostedService<FxThreeTimesDailyRefresher>();
+
+// Supplier stock sync: feed URLs come from .env (StockSync__Feeds__<code>__Url)
+builder.Services.AddOptions<StockSyncOptions>()
+    .Bind(builder.Configuration.GetSection("StockSync"));
+builder.Services.AddSingleton<IStockFeedParser, AkakceXmlFeedParser>();
+builder.Services.AddHttpClient<IStockSyncService, StockSyncService>(c => c.Timeout = TimeSpan.FromMinutes(2));
+builder.Services.AddHostedService<StockSyncScheduler>();
 // ⬇️ AUTH: Cookie + Google
 builder.Services.AddAuthentication(o =>
     {

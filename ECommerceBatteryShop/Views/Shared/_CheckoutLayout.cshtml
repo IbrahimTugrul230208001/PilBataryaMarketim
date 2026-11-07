@@ -1,0 +1,68 @@
+@*
+    Minimal layout for the checkout page: no category menu, search, mobile bottom nav or footer,
+    so the customer isn't pulled away mid-payment. It still loads everything the checkout needs:
+    Tailwind CSS, the antiforgery token (read by layout.js for HTMX requests), Alpine, HTMX,
+    layout.js, and the Google Ads tag (needed for conversion tracking).
+*@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var pageTitle = ViewData["Title"] as string;
+    var title = string.IsNullOrWhiteSpace(pageTitle) ? "Pil Batarya Marketim" : $"{pageTitle} | Pil Batarya Marketim";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="request-verification-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken"/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17649197142"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'AW-17649197142');
+    </script>
+    <title>@title</title>
+    <link rel="icon" href="/img/pilbataryamarketimsmall.webp" type="webp">
+    <link rel="stylesheet" href="~/css/output.css"/>
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body class="bg-white">
+<header>
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+        <a href="/" aria-label="Ana sayfa">
+            <img asp-append-version="true" src="~/img/pilbataryamarketimblack.webp" alt="Pil Batarya Marketim" class="h-10 w-auto object-contain sm:h-14 lg:h-16"/>
+        </a>
+        <div class="flex items-center gap-3 text-sm sm:gap-5">
+            <span class="inline-flex items-center gap-2 font-semibold text-slate-500 text-base sm:text-xl">
+                      <img asp-append-version="true" src="/img/go.webp"
+                                 alt="Güvenli Öde"
+                                 class="h-5 w-auto sm:h-6"
+                                 loading="lazy" />
+
+                <svg class="h-6 w-6 sm:h-8 sm:w-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <rect x="4" y="10" width="16" height="10" rx="2"/>
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                </svg>
+                SSL
+            </span>
+        </div>
+    </div>
+</header>
+
+@* The checkout view renders its own <main> and container, so the body is output as-is. *@
+@RenderBody()
+
+<footer class="border-t border-slate-200 px-4 py-6 text-center text-xs text-slate-500">
+    © @DateTime.Now.Year Pil Batarya Marketim · Ödemeleriniz iyzico altyapısıyla alınır.
+</footer>
+
+<script src="https://unpkg.com/alpinejs/collapse@3.x.x/dist/cdn.min.js" defer></script>
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+<script src="~/js/layout.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

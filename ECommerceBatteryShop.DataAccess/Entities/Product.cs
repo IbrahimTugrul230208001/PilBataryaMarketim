@@ -14,4 +14,5 @@ public class Product
     public Inventory? Inventory { get; set; }
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
     public ICollection<ProductDiscount> Discounts { get; set; } = new List<ProductDiscount>();
+    public ICollection<ProductSupplierLink> SupplierLinks { get; set; } = new List<ProductSupplierLink>();
 }

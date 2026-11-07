@@ -65,6 +65,7 @@ public class SiparisController : Controller
             "aras" => "Aras Kargo",
             "hepsijet" => "HepsiJET",
             "yurtici" => "Yurtiçi Kargo",
+            "test" => "Test Kargo",
             _ => "Bilinmeyen Kargo"
         };
     }
@@ -1079,7 +1080,7 @@ public class SiparisController : Controller
 
             if (!string.IsNullOrWhiteSpace(cardUserKey) && !string.IsNullOrWhiteSpace(cardToken))
             {
-                await _savedCardRepository.AddAsync(new SavedCard
+                await _savedCardRepository.AddOrReplaceAsync(new SavedCard
                 {
                     UserId = userId,
                     CardUserKey = cardUserKey!,

@@ -3,6 +3,7 @@ using ECommerceBatteryShop.DataAccess.Abstract;
 using ECommerceBatteryShop.DataAccess.Entities;
 using ECommerceBatteryShop.Models;
 using ECommerceBatteryShop.Services;
+using ECommerceBatteryShop.Services.StockSync;
 using Iyzipay.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -27,11 +28,12 @@ namespace ECommerceBatteryShop.Controllers
         private readonly IProductRepository _productRepository;
         private readonly ICategoryService _categoryService;
         private readonly IInventoryRepository _inventoryRepository;
+        private readonly IStockSyncService _stockSyncService;
 
         public AdminController(BatteryShopContext context, IWebHostEnvironment environment,
             ICategoryRepository categoryRepository, IOrderRepository orderRepository, ICurrencyService currencyService,
             IProductRepository productRepository, ICategoryService categoryService,
-            IInventoryRepository inventoryRepository)
+            IInventoryRepository inventoryRepository, IStockSyncService stockSyncService)
         {
             _context = context;
             _environment = environment;
@@ -41,6 +43,7 @@ namespace ECommerceBatteryShop.Controllers
             _productRepository = productRepository;
             _categoryService = categoryService;
             _inventoryRepository = inventoryRepository;
+            _stockSyncService = stockSyncService;
         }
 
         [HttpGet]
@@ -323,6 +326,15 @@ namespace ECommerceBatteryShop.Controllers
             TempData["StockUpdateSuccess"] = "Seçili ürünlerin stok durumları güncellendi.";
 
             return RedirectToAction("StokPaneli", "Admin");
+        }
+
+        // Runs the supplier stock sync now instead of waiting for the scheduled time
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StokSenkronize(CancellationToken cancellationToken)
+        {
+            var result = await _stockSyncService.SyncAllAsync(cancellationToken);
+            return Json(result);
         }
 
         [HttpGet]

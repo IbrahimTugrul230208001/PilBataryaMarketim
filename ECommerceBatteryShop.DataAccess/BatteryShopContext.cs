@@ -63,6 +63,34 @@ public class BatteryShopContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
+        // Supplier stock sync: each supplier SKU maps to one product, and a product links to a supplier at most once
+        modelBuilder.Entity<Supplier>(b =>
+        {
+            b.HasIndex(s => s.Code).IsUnique();
+            b.HasData(new Supplier
+            {
+                Id = 1,
+                Code = "pilmagazasi",
+                Name = "Pil Mağazası",
+                FeedFormat = "akakce-xml",
+                IsEnabled = true,
+                MinExpectedItems = 300,
+                StaleAfterHours = 48
+            });
+        });
+
+        modelBuilder.Entity<ProductSupplierLink>(b =>
+        {
+            b.HasIndex(l => new { l.SupplierId, l.SupplierSku }).IsUnique();
+            b.HasIndex(l => new { l.ProductId, l.SupplierId }).IsUnique();
+            b.HasOne(l => l.Product).WithMany(p => p.SupplierLinks).HasForeignKey(l => l.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+            b.HasOne(l => l.Supplier).WithMany(s => s.ProductLinks).HasForeignKey(l => l.SupplierId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<StockSyncRun>(b => { b.HasIndex(r => new { r.SupplierId, r.StartedAt }); });
+
         base.OnModelCreating(modelBuilder);
     }
 
@@ -83,5 +111,8 @@ public class BatteryShopContext : DbContext
     public DbSet<SavedCard> SavedCards => Set<SavedCard>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<ProductDiscount> ProductDiscounts => Set<ProductDiscount>();
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<ProductSupplierLink> ProductSupplierLinks => Set<ProductSupplierLink>();
+    public DbSet<StockSyncRun> StockSyncRuns => Set<StockSyncRun>();
 }
 

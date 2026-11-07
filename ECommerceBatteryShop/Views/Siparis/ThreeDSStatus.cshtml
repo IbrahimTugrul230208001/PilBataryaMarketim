@@ -2,41 +2,107 @@
 @{
     var success = Model?.Success ?? false;
     var message = Model?.Message ?? "Ödeme sağlayıcıdan alınan yanıt işlendi.";
-    ViewData["Title"] = "Siparişiniz Alındı";
+    ViewData["Title"] = success ? "Siparişiniz Alındı" : "Ödeme Tamamlanamadı";
+    const int redirectSeconds = 6;
 }
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-7 col-md-9">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center p-5">
-                    <div class="mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="currentColor" class="bi bi-check-circle-fill text-success" viewBox="0 0 16 16">
-                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 1 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05"/>
-                        </svg>
-                    </div>
-                    <h1 class="h4 mb-2">Siparişiniz alındı</h1>
-                    <p class="text-muted mb-4">Teşekkür ederiz! Siparişiniz başarıyla oluşturuldu. Size e-posta ile bilgilendirme yapılacaktır.</p>
+<main class="bg-slate-50 px-4 py-12 sm:py-16">
+    <div class="mx-auto max-w-xl overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+        @* Accent bar: amber on success (site brand color), red on failure *@
+        <div class="h-1.5 @(success ? "bg-amber-400" : "bg-red-500")"></div>
 
-                    <div class="border rounded p-3 text-start mx-auto" style="max-width:560px;">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <strong class="me-2">Ödeme doğrulama</strong>
-                            <span class="badge @(success ? "bg-success" : "bg-danger")">@(success ? "Başarılı" : "Başarısız")</span>
-                        </div>
-                        <div class="small text-muted mt-2">
-                            @message
-                        </div>
-                        <div class="form-text mt-2">(3D Secure sonucu veya ödeme sağlayıcı geri bildirimi)</div>
-                    </div>
-
-                    <a href="/" class="btn btn-primary text-amber-700">Ana sayfaya dön</a>
+        <div class="px-6 py-10 text-center sm:px-10">
+            @if (success)
+            {
+                <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-emerald-600 ring-8 ring-emerald-50/60">
+                    <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 12.5l4.5 4.5L19 7.5"/>
+                    </svg>
                 </div>
+                <h1 class="mt-6 text-2xl font-semibold text-gray-900">Siparişiniz alındı</h1>
+                <p class="mt-2 text-sm text-slate-600">
+                    Teşekkür ederiz! Siparişiniz başarıyla oluşturuldu. Size e-posta ile bilgilendirme yapılacaktır.
+                </p>
+            }
+            else
+            {
+                <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-red-50 text-red-600 ring-8 ring-red-50/60">
+                    <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 7.5v5.5"/>
+                        <path d="M12 16.5h.01"/>
+                    </svg>
+                </div>
+                <h1 class="mt-6 text-2xl font-semibold text-gray-900">Ödeme tamamlanamadı</h1>
+                <p class="mt-2 text-sm text-slate-600">
+                    Siparişiniz oluşturulamadı. Kart bilgilerinizi kontrol edip tekrar deneyebilirsiniz.
+                </p>
+            }
+
+            <div class="mt-8 rounded-xl bg-slate-50 p-4 text-left ring-1 ring-slate-200">
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-sm font-semibold text-gray-900">Ödeme doğrulama</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold @(success ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")">
+                        <span class="h-1.5 w-1.5 rounded-full @(success ? "bg-emerald-500" : "bg-red-500")"></span>
+                        @(success ? "Başarılı" : "Başarısız")
+                    </span>
+                </div>
+                <p class="mt-2 text-sm text-slate-700">@message</p>
+                <p class="mt-3 flex items-center gap-1.5 text-xs text-slate-400">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="4" y="10" width="16" height="10" rx="2"/>
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                    </svg>
+                    3D Secure sonucu / ödeme sağlayıcı geri bildirimi
+                </p>
             </div>
+
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                @if (success)
+                {
+                    <a href="/"
+                       class="inline-flex h-11 items-center justify-center rounded-xl bg-amber-300 px-6 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60">
+                        Ana sayfaya dön
+                    </a>
+                    <a href="/Urun/Index"
+                       class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 px-6 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                        Alışverişe devam et
+                    </a>
+                }
+                else
+                {
+                    <a href="/Sepet"
+                       class="inline-flex h-11 items-center justify-center rounded-xl bg-amber-300 px-6 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60">
+                        Sepete dön ve tekrar dene
+                    </a>
+                    <a href="/"
+                       class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 px-6 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                        Ana sayfa
+                    </a>
+                }
+            </div>
+
+            @if (success)
+            {
+                <p class="mt-6 text-xs text-slate-400">
+                    <span id="redirect-countdown">@redirectSeconds</span> saniye içinde ana sayfaya yönlendirileceksiniz.
+                </p>
+            }
         </div>
     </div>
-</div>
+</main>
 @if (success)
 {
     <script>
-        setTimeout(function(){ window.location.href = '/'; }, 4000);
+        (function () {
+            var remaining = @redirectSeconds;
+            var el = document.getElementById('redirect-countdown');
+            var timer = setInterval(function () {
+                remaining--;
+                if (el) el.textContent = remaining;
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    window.location.href = '/';
+                }
+            }, 1000);
+        })();
     </script>
 }

@@ -4,17 +4,17 @@ namespace ECommerceBatteryShop.Models;
 
 public class ChangePasswordViewModel
 {
- [Required(ErrorMessage = "Mevcut þifre gereklidir.")]
+ [Required(ErrorMessage = "Mevcut Åžifre gereklidir.")]
  [DataType(DataType.Password)]
  public string CurrentPassword { get; set; } = string.Empty;
 
- [Required(ErrorMessage = "Yeni þifre gereklidir.")]
- [MinLength(6, ErrorMessage = "Þifre en az 6 karakter olmalýdýr.")]
+ [Required(ErrorMessage = "Yeni Åžifre gereklidir.")]
+ [MinLength(6, ErrorMessage = "Åžifre en az 6 karakter olmalÄ±dÄ±r.")]
  [DataType(DataType.Password)]
  public string NewPassword { get; set; } = string.Empty;
 
- [Required(ErrorMessage = "Þifre tekrarý gereklidir.")]
+ [Required(ErrorMessage = "Åžifre tekrarÄ± gereklidir.")]
  [DataType(DataType.Password)]
- [Compare("NewPassword", ErrorMessage = "Þifreler eþleþmiyor.")]
+ [Compare("NewPassword", ErrorMessage = "Åžifreler eÅŸleÅŸmiyor.")]
  public string ConfirmPassword { get; set; } = string.Empty;
 }
