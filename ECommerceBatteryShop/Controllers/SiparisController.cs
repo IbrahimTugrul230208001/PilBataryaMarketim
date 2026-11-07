@@ -22,7 +22,7 @@ namespace ECommerceBatteryShop.Controllers;
 public class SiparisController : Controller
 {
     private const decimal DefaultShippingFee = 129.99m;
-    private const decimal IbanDiscountRate = 0.03m; // %3 indirim
+    private const decimal IbanDiscountRate = 0.03m;
 
     private readonly ICartService _cartService;
     private readonly ICurrencyService _currencyService;
