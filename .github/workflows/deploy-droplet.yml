@@ -33,7 +33,7 @@ jobs:
         run: |
           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
             set -e
-            cd ~/apps/ECommerceBatteryShop
+            cd /var/www/app/PilBataryaMarketim
             git fetch origin master
             git reset --hard origin/master
             docker compose up -d --build
