@@ -78,9 +78,20 @@
     </form>
 
    
-        <a href="/Misafir/Index" class="flex justify-center text-amber-600 transition hover:underline font-semibold">
-            Misafir olarak devam et
-        </a>
+        @* Hidden once the guest form was filled (GUEST_INFO cookie); set in HesapController.GirisView *@
+        @if (ViewData["HasGuestInfo"] as bool? != true)
+        {
+            <a href="/Misafir/Index" class="flex justify-center text-amber-600 transition hover:underline font-semibold">
+                Misafir olarak devam et
+            </a>
+        }
+        else
+        {
+            @* Returning guest: skip the form, their details are already in the cookie *@
+            <a href="/Sepet/Siparis" class="flex justify-center text-amber-600 transition hover:underline font-semibold">
+                Misafir olarak siparişe devam et
+            </a>
+        }
 
         <a href="/Hesap/Kayit" class="flex justify-center text-blue-600 transition hover:underline font-semibold">
             Hesabınız yok mu? Kayıt olun.

@@ -29,6 +29,7 @@ public class HesapController : Controller
     private readonly ICartService _cartService;
     private readonly IOrderRepository _orderRepository;
     private readonly ILogger<HesapController> _logger;
+    private const string GuestInfoCookie = "GUEST_INFO";
 
     public HesapController(
         IAccountRepository accountRepository,
@@ -52,6 +53,24 @@ public class HesapController : Controller
     public IActionResult Ayarlar()
     {
         return View("~/Views/Hesap/Ayarlar.cshtml");
+    }
+
+      private GuestCheckoutViewModel? ReadGuestInfoFromRequest()
+    {
+        try
+        {
+            if (Request.Cookies.TryGetValue(GuestInfoCookie, out var json) && !string.IsNullOrWhiteSpace(json))
+            {
+                var guest = System.Text.Json.JsonSerializer.Deserialize<GuestCheckoutViewModel>(json);
+                return guest;
+            }
+        }
+        catch
+        {
+            // ignore malformed cookie
+        }
+
+        return null;
     }
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -120,7 +139,7 @@ public class HesapController : Controller
 
     public IActionResult Giris()
     {
-        return View("~/Views/Hesap/Giris.cshtml",new LoginViewModel());
+        return GirisView(new LoginViewModel());
     }
     public IActionResult Kayit()
     {
@@ -132,6 +151,7 @@ public class HesapController : Controller
     {
         model.Password = null;
         model.ConfirmPassword = null;
+        ViewData["HasGuestInfo"] = ReadGuestInfoFromRequest() is not null;
         return View("~/Views/Hesap/Kayit.cshtml", model);
     }
 
@@ -142,6 +162,8 @@ public class HesapController : Controller
     private IActionResult GirisView(LoginViewModel model)
     {
         model.Password = string.Empty;
+        // Guests who already filled the Misafir form don't need the "Misafir olarak devam et" link again
+        ViewData["HasGuestInfo"] = ReadGuestInfoFromRequest() is not null;
         return View("~/Views/Hesap/Giris.cshtml", model);
     }
 

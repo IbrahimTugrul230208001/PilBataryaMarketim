@@ -63,10 +63,7 @@ public class SiparisController : Controller
         return (shippingId ?? string.Empty).ToLowerInvariant() switch
         {
             "aras" => "Aras Kargo",
-            "hepsijet" => "HepsiJET",
-            "yurtici" => "Yurtiçi Kargo",
-            "test" => "Test Kargo",
-            _ => "Bilinmeyen Kargo"
+            "surat" => "Sürat Kargo",
         };
     }
 
