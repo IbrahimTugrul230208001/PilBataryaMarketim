@@ -1,6 +1,7 @@
 using ECommerceBatteryShop.DataAccess.Abstract;
 using ECommerceBatteryShop.DataAccess.Entities;
 using ECommerceBatteryShop.Mapping;
+using ECommerceBatteryShop.Infrastructure;
 using ECommerceBatteryShop.Models;
 using ECommerceBatteryShop.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -29,7 +30,6 @@ public class HesapController : Controller
     private readonly ICartService _cartService;
     private readonly IOrderRepository _orderRepository;
     private readonly ILogger<HesapController> _logger;
-    private const string GuestInfoCookie = "GUEST_INFO";
 
     public HesapController(
         IAccountRepository accountRepository,
@@ -55,23 +55,6 @@ public class HesapController : Controller
         return View("~/Views/Hesap/Ayarlar.cshtml");
     }
 
-      private GuestCheckoutViewModel? ReadGuestInfoFromRequest()
-    {
-        try
-        {
-            if (Request.Cookies.TryGetValue(GuestInfoCookie, out var json) && !string.IsNullOrWhiteSpace(json))
-            {
-                var guest = System.Text.Json.JsonSerializer.Deserialize<GuestCheckoutViewModel>(json);
-                return guest;
-            }
-        }
-        catch
-        {
-            // ignore malformed cookie
-        }
-
-        return null;
-    }
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model, CancellationToken ct)
@@ -151,7 +134,7 @@ public class HesapController : Controller
     {
         model.Password = null;
         model.ConfirmPassword = null;
-        ViewData["HasGuestInfo"] = ReadGuestInfoFromRequest() is not null;
+        ViewData["HasGuestInfo"] = GuestInfoCookie.Read(Request) is not null;
         return View("~/Views/Hesap/Kayit.cshtml", model);
     }
 
@@ -163,7 +146,7 @@ public class HesapController : Controller
     {
         model.Password = string.Empty;
         // Guests who already filled the Misafir form don't need the "Misafir olarak devam et" link again
-        ViewData["HasGuestInfo"] = ReadGuestInfoFromRequest() is not null;
+        ViewData["HasGuestInfo"] = GuestInfoCookie.Read(Request) is not null;
         return View("~/Views/Hesap/Giris.cshtml", model);
     }
 

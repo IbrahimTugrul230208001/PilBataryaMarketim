@@ -34,7 +34,6 @@ public class SiparisController : Controller
     private readonly IPricingService _pricing;
     private readonly ILogger<SiparisController> _logger;
 
-    private const string GuestInfoCookie = "GUEST_INFO";
 
     public SiparisController(
         ICartService cartService,
@@ -204,7 +203,7 @@ public class SiparisController : Controller
             else
             {
                 // New guest flow for IBAN
-                var guest = ReadGuestInfoFromRequest() ?? FromInput(input);
+                var guest = GuestInfoCookie.Read(Request) ?? FromInput(input);
                 if (guest is null)
                 {
                     return BadRequest(new
@@ -522,7 +521,7 @@ public class SiparisController : Controller
         }
         else
         {
-            var guest = ReadGuestInfoFromRequest() ?? FromInput(input);
+            var guest = GuestInfoCookie.Read(Request) ?? FromInput(input);
             if (guest is null)
             {
                 return BadRequest(new
@@ -1258,24 +1257,6 @@ public class SiparisController : Controller
         }
 
         return fallback;
-    }
-
-    private GuestCheckoutViewModel? ReadGuestInfoFromRequest()
-    {
-        try
-        {
-            if (Request.Cookies.TryGetValue(GuestInfoCookie, out var json) && !string.IsNullOrWhiteSpace(json))
-            {
-                var guest = System.Text.Json.JsonSerializer.Deserialize<GuestCheckoutViewModel>(json);
-                return guest;
-            }
-        }
-        catch
-        {
-            // ignore malformed cookie
-        }
-
-        return null;
     }
 
     private static GuestCheckoutViewModel? FromInput(PlaceOrderInputModel input)

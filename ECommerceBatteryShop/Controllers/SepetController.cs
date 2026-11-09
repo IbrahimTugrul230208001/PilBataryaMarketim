@@ -30,7 +30,6 @@ namespace ECommerceBatteryShop.Controllers
         private const string CartConsentMessage =
             "Çerezleri reddettiniz. Sepet özelliğini kullanabilmek için çerezleri kabul etmelisiniz.";
 
-        private const string GuestInfoCookie = "GUEST_INFO";
 
         public SepetController(ICartRepository repo, ICartService cartService, ICurrencyService currencyService,
             IAddressRepository addressRepository, IPricingService pricing, ILogger<SepetController> logger)
@@ -62,24 +61,6 @@ namespace ECommerceBatteryShop.Controllers
 
             Response.Headers["HX-Trigger"] = payload;
             return StatusCode(StatusCodes.Status409Conflict, new { message });
-        }
-
-        private GuestCheckoutViewModel? ReadGuestInfo()
-        {
-            try
-            {
-                if (Request.Cookies.TryGetValue(GuestInfoCookie, out var json) && !string.IsNullOrWhiteSpace(json))
-                {
-                    var guest = JsonSerializer.Deserialize<GuestCheckoutViewModel>(json);
-                    return guest;
-                }
-            }
-            catch
-            {
-                _logger.LogInformation("Misafir bilgisi bulunmadı.");
-            }
-
-            return null;
         }
 
         public async Task<IActionResult> Index(CancellationToken ct)
@@ -194,7 +175,7 @@ namespace ECommerceBatteryShop.Controllers
                 }
             }
 
-            var guest = isAuthenticated ? null : ReadGuestInfo();
+            var guest = isAuthenticated ? null : GuestInfoCookie.Read(Request);
             AddressViewModel? selectedAddressViewModel = addresses.FirstOrDefault(a => a.Id == defaultAddressId);
 
             // Generate the contract model with default values
